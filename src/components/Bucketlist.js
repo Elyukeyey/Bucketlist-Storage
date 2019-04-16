@@ -46,6 +46,9 @@ class Bucketlist extends Component {
       <>
         <BucketCreate changeView={this.props.changeView} toggle={this.state.toggle} toggleCreate={this.toggleCreate} appendBucket={this.appendBucket}/>
         <div className="width-90">
+        <div className="row row-header">
+          <div className="col-9">Name</div><div className="col-3">Location</div>
+        </div>
             { row }
         </div>
       </>

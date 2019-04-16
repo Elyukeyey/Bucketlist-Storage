@@ -26,16 +26,30 @@ body {
   font-size: calc(10px + 2vmin);
   color: white;
 }
-ul {
-  display: block;
+.row-header {
+  background-color: #999;
+  margin: 0 auto;
+  width: 100%;
+  border: 1px #333 solid;
+  padding: 10px 0;
 }
 .li {
   margin: auto;
   width: 100%;
+  padding: 10px 0;
 }
 .li:hover {
   background-color: #a3d5f0;
+  cursor: pointer;
 }
 .li-active {
   background-color: #a3d5a0;
+  cursor: pointer;
+}
+button {
+  margin: 1px;
+}
+.hidden-input {
+  position: absolute;
+  top: -200px;
 }
