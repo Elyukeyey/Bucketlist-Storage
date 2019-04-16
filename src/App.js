@@ -1,26 +1,19 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import Header from './components/Header';
+import Bucketlist from './components/Bucketlist';
+
 import './App.css';
 
 class App extends Component {
+  state = {
+    token: 'Token 728B3E93-86F6-42B2-9FED-83E3D786E318'
+  }
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+      <>
+        <Header />
+        <Bucketlist token={this.state.token}/>
+      </>
     );
   }
 }
