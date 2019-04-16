@@ -1,18 +1,29 @@
 import React, { Component } from 'react';
 import Header from './components/Header';
 import Bucketlist from './components/Bucketlist';
+import Bucket from './components/Bucket';
 
 import './App.css';
 
 class App extends Component {
   state = {
-    token: 'Token 728B3E93-86F6-42B2-9FED-83E3D786E318'
+    bucketlist: true,
+    bucket: ''
+
+  }
+  changeView = () => {
+    this.setState({ bucktetlist: !this.state.bucketlist});
+  }
+  getBucketId = (id) => {
+    this.setState({bucket: id});
+    this.setState({bucketlist: false});
   }
   render() {
     return (
       <>
         <Header />
-        <Bucketlist token={this.state.token}/>
+        {this.state.bucketlist && <Bucketlist changeView={this.changeView} getBucketId={this.getBucketId}/>}
+        {!this.state.bucketlist && <Bucket bucket={this.state.bucket}/>}
       </>
     );
   }

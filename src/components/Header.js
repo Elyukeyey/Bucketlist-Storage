@@ -2,7 +2,7 @@ import React from 'react'
 
 function Header() {
   return (
-    <header className="App-header">
+    <header className="header">
         <h1>Bucket List</h1>
         <h3>Secure Cloud Storage</h3>
     </header>
