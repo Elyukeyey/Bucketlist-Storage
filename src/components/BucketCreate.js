@@ -4,7 +4,12 @@ class BucketCreate extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            locations: [],
+            locations: [
+                {
+                  id: "1",
+                  name: "1"
+                }
+              ],
             newBucket: {
                 name: '',
                 location: ''
@@ -12,13 +17,15 @@ class BucketCreate extends Component {
             }
         }
     componentDidMount() {
-        fetch("https://challenge.3fs.si/storage/locations", {
-            method: "GET",
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Token 728B3E93-86F6-42B2-9FED-83E3D786E318' // Za tole ne vem kam se skrije process.env ne dela?
-            }
-        }).then(res => res.json()).then(data=> this.setState({ locations: data.locations }));
+        fetch("https://challenge.3fs.si/storage/locations",
+             {
+                method: "GET",
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Token 728B3E93-86F6-42B2-9FED-83E3D786E318' // Za tole ne vem kam se skrije process.env ne dela?
+            }})
+        .then(res => res.json())
+        .then(data=> this.setState({ locations: data.locations }));
     }
     // Vneseno ime - so kakšne omejitve glede tega??
     handleNameChange = (e) => {
@@ -28,7 +35,7 @@ class BucketCreate extends Component {
         }
         this.setState({ newBucket: newState });
     }
-    // Spreminja vrednost glede na SELECT
+    // Spreminja vrednost glede na SELECT v FORMU
     handleSelectChange = (e) => {
         let newState = {
             name: this.state.newBucket.name,

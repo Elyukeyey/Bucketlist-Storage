@@ -6,10 +6,14 @@ import Bucket from './components/Bucket';
 import './App.css';
 
 class App extends Component {
+
   state = {
     bucketlist: true,
     bucket: ''
 
+  }
+  goHome = () => {
+    this.setState({ bucketlist: true, bucket: '' });
   }
   changeView = () => {
     this.setState({ bucktetlist: !this.state.bucketlist});
@@ -21,9 +25,10 @@ class App extends Component {
   render() {
     return (
       <>
-        <Header />
+        <Header goHome={this.goHome}/>
+        <h2>{(this.state.bucket === '') ? 'Bucket list' : this.state.bucket }</h2>
         {this.state.bucketlist && <Bucketlist changeView={this.changeView} getBucketId={this.getBucketId}/>}
-        {!this.state.bucketlist && <Bucket bucket={this.state.bucket}/>}
+        {!this.state.bucketlist && <Bucket bucket={this.state.bucket} goHome={this.goHome}/>}
       </>
     );
   }

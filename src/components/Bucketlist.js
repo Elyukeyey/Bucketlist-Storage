@@ -5,7 +5,16 @@ class Bucketlist extends Component {
   constructor(props) {
       super(props);
       this.state = {
-          buckets: [], // Se shranijo vsi seznami iz API-ja
+          buckets: [
+            {
+              id: "1",
+              name: "2",
+              location: {
+                id: "1",
+                name: "2"
+              }
+            }
+          ], // Se shranijo vsi seznami iz API-ja
           toggle: false,  // Vklopi izklopi Dodaj Bucket
           select: ''
       }
@@ -49,7 +58,7 @@ class Bucketlist extends Component {
         <div className="row row-header">
           <div className="col-9">Name</div><div className="col-3">Location</div>
         </div>
-            { row }
+            { (this.state.buckets) ? row : '' }
         </div>
       </>
     )
