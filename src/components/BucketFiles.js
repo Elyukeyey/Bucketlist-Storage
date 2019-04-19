@@ -6,66 +6,100 @@ class BucketFiles extends Component {
         this.state = {
             select: '',
             toggleDelete: '',
+            postErrData: {}
         }
-        this.upload = React.createRef(); // <input> je skrit, namesto <input>-a je gumb
+        // Ref for the hidden <input> - input activates when the button is pressed.
+        this.upload = React.createRef(); 
     }
-    // UPLOAD funkcije
-    browseFiles = () => { // klik na <input> preko Ref-a
+
+
+
+    // UPLOAD functions
+
+    // trigger the <input> for file upload
+    browseFiles = () => {
         this.upload.current.click();
     }
-    uploadFile = (e) => { // NUJNO ŠE REFRESH - DA GA PRIKAŽE NA NOVO!
-        console.log(this.upload.current);
-        if(e.target.value !== '') { // Če je bil izbran fajl ('' vrne če ni bil) 
-        console.log('value: ' + e.target.value);
-        console.log('name: ' + e.target.name);
-        console.log('File: ' + File);
 
+    // Send the file to the API
+    uploadFile = (e) => {
+        if(e.target.value !== '') { // Check if a file was selected 
+        let {id} = this.props.bucket;
         const formData = new FormData();
         formData.append(e.target.name,this.upload.current.files[0]);
-        fetch(`https://challenge.3fs.si/storage/buckets/${this.props.bucket}/objects`, 
+        fetch(`https://challenge.3fs.si/storage/buckets/${id}/objects`, 
             {
             method: "POST",
             headers: {
-                Authorization: 'Token 728B3E93-86F6-42B2-9FED-83E3D786E318'
+                Authorization: this.props.auth
                 },
             body: formData
         })
-        .then(res => res.json()).then(data=> console.log(data)).catch(r=>r.json());
+        .then(res => {
+            if(res.status === 201) {
+                this.props.fetchObjects(id);
+            } else {
+                console.log(res);
+            }
+        })
+        .catch(r=>r.json());
         }
     }
 
-    // DELETE funkcije
-    selectObject = (e) => {
+    // DELETE functions
+
+    // select file to delete
+    selectObject = (e) => { 
         e.preventDefault();
-        console.log(e.currentTarget.id)
         this.setState({ select: e.currentTarget.id });
     }
+
+    // toggles the "confirm/cancel" buttons or the "delete" button
     toggleDel = () => {
         this.setState({toggleDelete: !this.state.toggleDelete});
     } 
-    deleteObject = () => {
+
+
+    // DELETE request
+    deleteObject = () => { // sends the delete request to API
         if(this.state.select !== '') {
-            fetch(`https://challenge.3fs.si/storage/buckets/${this.props.bucket}/objects/${this.state.select}`, {
+            fetch(`https://challenge.3fs.si/storage/buckets/${this.props.bucket.id}/objects/${this.state.select}`, {
                 method: "DELETE",
                 headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': 'Token 728B3E93-86F6-42B2-9FED-83E3D786E318'
+                  'Authorization': this.props.auth
                 }
             })
-            .then(res => res.json())
-            .then(data=>console.log(data));
-            this.setState({select: '', toggleDelete: false});
-            // napiši state change, da se ga odstrani s seznama.
+            .then(res => {
+                if(res.status === 200) { // if response OK, update the state with new data
+                  this.props.fetchObjects(this.props.bucket.id)
+                } else {
+                    console.log(res);
+                }
+            })
+            this.setState({select: '', toggleDelete: false}); // reset the selection and delete button
 
         } else {
-            alert('Select an object to delete!');
+            alert('Select an object to delete!'); // if object is not selected alert the user
         }
     }
+
+    // Only to test the component props
+    /*componentDidUpdate(prevProps,prevState) {
+        if(this.props.buckets !== prevProps.buckets) {
+          console.log('BL component updated ...:');
+          console.log('this.props:');
+          console.table(this.props.buckets);
+          console.log('prevProps:')
+          console.table(prevProps.buckets);
+        }
+      }*/
   render() {
+    // Object iteration
     const row = this.props.objects.map(object =>
         <div key={object.name} id={object.name} onClick={this.selectObject} className={`row li ${(this.state.select===object.name)? 'li-active' :''}`}>
         <div className="col-5">
-        {object.name}
+        <i className="far fa-file-alt"></i> {object.name}
         </div>
         <div className="col-4">
         {object.last_modified
@@ -75,6 +109,7 @@ class BucketFiles extends Component {
           {((object.size/1024/1024) < 1) ? Math.round(object.size/1024) + 'kB' : Math.round(object.size/1024/1024) + 'MB'}
         </div>
       </div>);
+    // Delete buttons
     const deleteButton = <button className="btn btn-sm btn-secondary" onClick={this.toggleDel}>Delete Object</button>;
     const deleteConfirm = 
     <>
@@ -84,10 +119,10 @@ class BucketFiles extends Component {
     </>;
     return (
         <>
-        <div className="width-90">
+        <div className="width-90 bg-white">
             <div className="row">
-                <div className="col-6 text-left">All files ({this.props.objects.length})</div>
-                <div className="col-6 text-right">
+                <div className="col-3 text-left">All files ({this.props.objects.length})</div>
+                <div className="col-9 text-right">
                 {(this.state.toggleDelete) ? deleteConfirm : deleteButton }
                     <button className="btn btn-sm btn-success" onClick={this.browseFiles}>Upload Object</button>
                 </div>
@@ -102,14 +137,15 @@ class BucketFiles extends Component {
     )
   }
 }
-BucketFiles.defaultProps = {
+
+React.defaultProps = {
     objects: [
         {
           name: "",
           modified: "",
           size: 0
         }
-      ]       
+      ]
 }
 
 export default BucketFiles;

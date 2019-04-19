@@ -4,50 +4,56 @@ class BucketDetails extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            singleBucket:  {
-                id: "",
-                name: "",
-                location: {
-                  id: "",
-                  name: ""
-                }
-              },
-            toggleDelete: false
+            toggleDelete: false,
+            select: ''
         }
     }
-    componentDidMount() { // Ko se Component naloži dobi bucket ID
-        fetch(`https://challenge.3fs.si/storage/buckets/${this.props.bucket}`, {
-            method: "GET",
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Token 728B3E93-86F6-42B2-9FED-83E3D786E318'
-            }
-        })
-        .then(res => res.json())
-        .then(data=>this.setState({ singleBucket: data.bucket }));
-    }
+
+
+    // Delete Bucket functions
+
+
+    // toggle delete bucket / confirm buttons
     toggleDel = () => {
        this.setState({toggleDelete: !this.state.toggleDelete});
     }
-    deleteBucket = () => {
-        if(this.state.select !== '') {
-            console.log('deleted bucket ' + this.state.singleBucket.id);
-            fetch(`https://challenge.3fs.si/storage/buckets/${this.state.singleBucket.id}`, {
+
+
+   // send delete request to API
+  deleteBucket = () => {
+            fetch(`https://challenge.3fs.si/storage/buckets/${this.props.bucket.id}`, {
                 method: "DELETE",
                 headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': 'Token 728B3E93-86F6-42B2-9FED-83E3D786E318'
+                  'Authorization': this.props.auth
                 }
             })
-            this.setState({select: '', toggleDelete: false});
-            this.props.goHome();
-            // napiši change state v App.js zato da vrne na prvo stran ko se izbriše + alert...
-        }
-    }
-  render() {
-    const { name, location } = this.state.singleBucket;
+            .then((res) => {
+              if (res.status === 200) {
+                this.props.fetchBucketList();
+              } else {
+                console.log(res);
+              }
+            })
+            .then(this.setState({toggleDelete: false}))
+            .then(this.props.goHome());
+  }
+
+  // Calculate the total size of the Bucket
+  getSize = () => {
     let sum = 0;
-    this.props.objects.forEach((val) => sum += val.size);
+    if (this.props.objects) {
+      this.props.objects.forEach((val) => sum += val.size);
+    }
+    if ((sum/1024/1024) < 1) { // return kB or MB values respectively
+        return Math.round(sum/1024) + 'kB';
+     } else {
+        return Math.round(sum/1024/1024) + 'MB';
+     } 
+  }
+  render() {
+    const { name, location } = this.props.bucket;
+    let sum = this.getSize();
     const deleteButton = <button className="btn btn-sm btn-secondary" onClick={this.toggleDel}>Delete Object</button>;
     const deleteConfirm = 
                         <>
@@ -56,7 +62,7 @@ class BucketDetails extends Component {
                             <button className="btn btn-sm btn-info" onClick={this.toggleDel}>Cancel</button>
                             </>;
     return (
-      <div className="width-90">
+      <div className="width-90 bg-white">
         <div className="text-right">
             {(this.state.toggleDelete) ? deleteConfirm : deleteButton }
         </div>
@@ -69,7 +75,7 @@ class BucketDetails extends Component {
             <div className="col-9">
                 <p>{name}</p>
                 <p>{location.name}</p>
-                <p>{((sum/1024/1024) < 1) ? Math.round(sum/1024) + 'kB' : Math.round(sum/1024/1024) + 'MB'}</p>
+                <p>{ sum }</p>
             </div>
         </div>
       </div>

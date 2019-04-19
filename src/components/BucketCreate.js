@@ -4,30 +4,17 @@ class BucketCreate extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            locations: [
-                {
-                  id: "1",
-                  name: "1"
-                }
-              ],
             newBucket: {
                 name: '',
                 location: ''
                 }
             }
         }
-    componentDidMount() {
-        fetch("https://challenge.3fs.si/storage/locations",
-             {
-                method: "GET",
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': 'Token 728B3E93-86F6-42B2-9FED-83E3D786E318' // Za tole ne vem kam se skrije process.env ne dela?
-            }})
-        .then(res => res.json())
-        .then(data=> this.setState({ locations: data.locations }));
-    }
-    // Vneseno ime - so kakšne omejitve glede tega??
+
+    // Form functions
+
+
+    // Set the value from the name <input>
     handleNameChange = (e) => {
         const newState = {
             name: e.target.value,
@@ -35,35 +22,50 @@ class BucketCreate extends Component {
         }
         this.setState({ newBucket: newState });
     }
-    // Spreminja vrednost glede na SELECT v FORMU
-    handleSelectChange = (e) => {
+
+
+    // Set the location based on the <select> value
+    handleSelectChange = (e) => { 
         let newState = {
             name: this.state.newBucket.name,
             location: e.target.value
         }
         this.setState({ newBucket: newState })
     }
-    // Dodajanje bucketa -> POST API
-    addBucket = (e) => {
-        e.preventDefault();
+
+
+
+    // POST request to the API
+    addBucket = (e) => { 
+        e.preventDefault(); // Prevent default form submit
+        let { location, name } = this.state.newBucket;
         
-        fetch("https://challenge.3fs.si/storage/buckets", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Token 728B3E93-86F6-42B2-9FED-83E3D786E318'
-                },
-            body: JSON.stringify({
-                name: this.state.newBucket.name,
-                location: (this.state.newBucket.location === '') ? '541909F3-20FC-4382-A8E8-18042F5E7677' : this.state.newBucket.location
+        if(!name) { alert('Enter Bucket name!'); } else { // If the name is not displayed warn the user
+
+            fetch("https://challenge.3fs.si/storage/buckets", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': this.props.auth
+                    },
+                body: JSON.stringify({
+                    name: name,
+                    location: (location === '') ? '541909F3-20FC-4382-A8E8-18042F5E7677' : location
+                })})
+            .then(res => {
+                if(res.status === 201) {
+                    this.props.fetchBucketList();
+                } else {
+                    console.log(res.status);
+                    let data = res.json();
+                    console.log(data);
+                }
             })
-        })
-        .then(res => res.json()).then(data=> this.props.appendBucket(data));
-        this.props.toggleCreate();
+            this.props.toggleCreate();
+        }    
     }
   render() {
-    // FORM za dodajanje bucketov
-    const form = <form onSubmit={this.addBucket}>
+    const form = <form onSubmit={this.addBucket}> {/* Add bucket <form> */}
                     <div className="row">
                         <div className="col-6">
                         <label>Bucket Name*</label><br />
@@ -72,21 +74,20 @@ class BucketCreate extends Component {
                         <div className="col-6">
                         <label>Location*</label><br />
                             <select name="locations" onChange={this.handleSelectChange}>
-                                {this.state.locations.map(opt => <option key={opt.id} value={opt.id}>{opt.name}</option>)}
+                                {this.props.locations.map(opt => <option key={opt.id} value={opt.id}>{opt.name}</option>)}
                             </select>
                         </div>
                     </div>
                     <div className="row">
-                        <div className="col-12 text-center">
+                        <div className="col-12 text-left">
                             <button className="btn btn-success">Add Bucket</button>
                         </div>
                     </div>
                 </form>;
-    // Gumb za toggle FORM
-    const btn = <button onClick={this.props.toggleCreate} className="btn btn-info">CreateBucket</button>
+    const btn = <button onClick={this.props.toggleCreate} className="btn btn-info">CreateBucket</button> // Toggle the Add bucket form button
     return (
     <>
-        <div className="width-90">
+        <div className="width-90 bg-white">
         {(this.props.toggle) ? form : btn}
         </div>
     </>

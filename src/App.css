@@ -5,7 +5,6 @@ body {
   background-color: #ccc;
 }
 .width-90{
-  background-color: #fff;
   width: 90%;
   margin: auto;
   padding: 10px;
@@ -20,11 +19,30 @@ body {
   pointer-events: none;
 }
 
-.header {
+.app-header {
   background-color: #282c34;
-  min-height: 5vh;
+  min-height: 10vh;
   font-size: calc(10px + 2vmin);
   color: white;
+}
+.header-title {
+  padding: 0 !important;
+}
+input,select {
+  width: 80%;
+  min-width: 150px;
+  margin-bottom: 10px;
+}
+.login-input {
+  max-width: 100%;
+  margin: 0 auto;
+  display: block;
+}
+.login-checkbox {
+  width: 10px;
+}
+label {
+  display: block;
 }
 .row-header {
   background-color: #999;
@@ -52,4 +70,7 @@ button {
 .hidden-input {
   position: absolute;
   top: -200px;
+}
+.margin-top {
+  margin-top: 25px;
 }

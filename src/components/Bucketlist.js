@@ -5,43 +5,38 @@ class Bucketlist extends Component {
   constructor(props) {
       super(props);
       this.state = {
-          buckets: [
-            {
-              id: "1",
-              name: "2",
-              location: {
-                id: "1",
-                name: "2"
-              }
-            }
-          ], // Se shranijo vsi seznami iz API-ja
-          toggle: false,  // Vklopi izklopi Dodaj Bucket
+          toggle: false,  // toggles on/off the add bucket <form>
           select: ''
       }
   }
 
-  appendBucket = (e) => { // Doda na lokalni seznam 
-    this.setState({ buckets: [...this.state.buckets, e]})
-  }
-  componentDidMount() { // Ko se Component naloži pokaži vse buckete
-    fetch("https://challenge.3fs.si/storage/buckets", {
-      method: "GET",
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Token 728B3E93-86F6-42B2-9FED-83E3D786E318'
-      }
-  }).then(res => res.json()).then(data=>this.setState({buckets: data.buckets}));
-}
-  toggleCreate = () => { // Vklopi / izklopi FORM za dodat nove Buckete
+
+   // Toggle add bucket <form>
+  toggleCreate = () => {
     this.setState({ toggle: !this.state.toggle });
   }
+
+  // Selects and opens the bucket from the list 
   selectBucket = (e) => {
-    e.preventDefault();
-    this.props.getBucketId(e.currentTarget.id);
-    //this.setState({ select: e.currentTarget.id });
+    this.props.fetchBucket(e.currentTarget.id);
+    this.props.fetchObjects(e.currentTarget.id);
+    this.props.toggleBucket();
   }
+
+
+  // Only for testing state changes:
+
+  /*componentDidUpdate(prevProps,prevState) {
+    if(this.props.buckets !== prevProps.buckets) {
+      console.log('BL component updated ...:');
+      console.log('this.props:');
+      console.table(this.props.buckets);
+      console.log('prevProps:')
+      console.table(prevProps.buckets);
+    }
+  }*/
   render() {
-    const row = this.state.buckets.map(bucket => 
+    const row = this.props.buckets.map(bucket => 
                 <div key={bucket.id} id={bucket.id} onClick={this.selectBucket} className={`row li ${(this.state.select===bucket.id)? 'li-active' :''}`}>
                 <div className="col-9">
                 {bucket.name}
@@ -53,12 +48,18 @@ class Bucketlist extends Component {
     return (
 
       <>
-        <BucketCreate changeView={this.props.changeView} toggle={this.state.toggle} toggleCreate={this.toggleCreate} appendBucket={this.appendBucket}/>
-        <div className="width-90">
-        <div className="row row-header">
-          <div className="col-9">Name</div><div className="col-3">Location</div>
-        </div>
-            { (this.state.buckets) ? row : '' }
+        <BucketCreate
+            toggle={this.state.toggle}
+            auth={this.props.auth}
+            toggleCreate={this.toggleCreate}
+            fetchBucketList={this.props.fetchBucketList}
+            locations={this.props.locations}/>
+        <div className="width-90 bg-white">
+          <div className="col-3 text-left">All Buckets ({this.props.buckets.length})</div>
+          <div className="row row-header">
+            <div className="col-9">Name</div><div className="col-3">Location</div>
+          </div>
+          { row }
         </div>
       </>
     )
