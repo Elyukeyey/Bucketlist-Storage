@@ -39,7 +39,7 @@ class BucketCreate extends Component {
         e.preventDefault(); // Prevent default form submit
         let { location, name } = this.state.newBucket;
         
-        if(!name) { alert('Enter Bucket name!'); } else { // If the name is not displayed warn the user
+        if(!name || !location) { alert('Name and location are both required fields!'); } else { // If the name is not displayed warn the user
 
             fetch("https://challenge.3fs.si/storage/buckets", {
                 method: "POST",
@@ -68,6 +68,7 @@ class BucketCreate extends Component {
                         <div className="col-6">
                         <label>Location*</label><br />
                             <select name="locations" onChange={this.handleSelectChange}>
+                                <option></option>
                                 {this.props.locations.map(opt => <option key={opt.id} value={opt.id}>{opt.name}</option>)}
                             </select>
                         </div>
