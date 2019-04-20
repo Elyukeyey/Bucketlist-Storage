@@ -35,6 +35,7 @@ class Bucketlist extends Component {
       console.table(prevProps.buckets);
     }
   }*/
+
   render() {
     const row = this.props.buckets.map(bucket => 
                 <div key={bucket.id} id={bucket.id} onClick={this.selectBucket} className={`row li ${(this.state.select===bucket.id)? 'li-active' :''}`}>
@@ -64,5 +65,18 @@ class Bucketlist extends Component {
       </>
     )
   }
+}
+
+React.defaultProps = {
+  buckets: [
+    {
+      id: "-",
+      name: "",
+      location: {
+        id: "-",
+        name: ""
+      }
+    }
+  ]
 }
 export default Bucketlist;

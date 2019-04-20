@@ -13,12 +13,6 @@ body {
   text-align: center;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
-  pointer-events: none;
-}
-
 .app-header {
   background-color: #282c34;
   min-height: 10vh;
@@ -34,12 +28,14 @@ input,select {
   margin-bottom: 10px;
 }
 .login-input {
-  max-width: 100%;
+  max-width: 350px;
   margin: 0 auto;
   display: block;
 }
 .login-checkbox {
+  display: block;
   width: 10px;
+  margin: 10px auto;
 }
 label {
   display: block;
@@ -73,4 +69,28 @@ button {
 }
 .margin-top {
   margin-top: 25px;
+}
+.margin-bottom {
+  margin-bottom: 25px;
+}
+.modal-view {
+  position: fixed;
+  top:0;
+  left:0;
+  background-color: rgba(0,0,0,0.6);
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+}
+.modal-box {
+  position: fixed;
+  background-color: #fff;
+  box-shadow: 0px 10x 15px 2px #666;
+  padding: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 300px;
+  z-index: 6;
+
 }

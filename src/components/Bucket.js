@@ -21,8 +21,8 @@ class Bucket extends Component {
             <>
             <div className="width-90 bg-white">
                 <div>
-                    <button className={`btn btn-lg ${(toggleTab === 'files') ? 'btn-primary' : 'btn-secondary' }`} onClick={this.switchTab.bind(this,'files')}>Files</button>
-                    <button className={`btn btn-lg ${(toggleTab === 'details') ? 'btn-primary' : 'btn-secondary'}`} onClick={this.switchTab.bind(this,'details')}>Details</button>
+                    <button className={`btn btn-lg ${(toggleTab === 'files') ? 'btn-info' : 'btn-secondary' }`} onClick={this.switchTab.bind(this,'files')}>Files</button>
+                    <button className={`btn btn-lg ${(toggleTab === 'details') ? 'btn-info' : 'btn-secondary'}`} onClick={this.switchTab.bind(this,'details')}>Details</button>
                 </div>
             </div>
             { this.state.toggleTab === 'files' && <BucketFiles 

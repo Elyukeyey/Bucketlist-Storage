@@ -28,18 +28,16 @@ class BucketDetails extends Component {
                   'Authorization': this.props.auth
                 }
             })
-            .then((res) => {
-              if (res.status === 200) {
-                this.props.fetchBucketList();
-              } else {
-                console.log(res);
-              }
-            })
-            .then(this.setState({toggleDelete: false}))
-            .then(this.props.goHome());
+            .then((res) =>
+              (res.ok) ? this.props.fetchBucketList() : console.log(`Error (${res.status}) deleting Bucket, server says: ${res.statusText}`)
+            )
+            .then(this.props.goHome())
+            .catch(res=>res.json().then(data=>console.table(data)));
+            this.setState({toggleDelete: false}); // reset the delete modal window
+            
   }
 
-  // Calculate the total size of the Bucket
+  // Calculate the total file size of the Bucket
   getSize = () => {
     let sum = 0;
     if (this.props.objects) {
@@ -51,20 +49,28 @@ class BucketDetails extends Component {
         return Math.round(sum/1024/1024) + 'MB';
      } 
   }
+
+
+
   render() {
     const { name, location } = this.props.bucket;
     let sum = this.getSize();
-    const deleteButton = <button className="btn btn-sm btn-secondary" onClick={this.toggleDel}>Delete Object</button>;
+    const deleteButton = <button className="btn btn-sm btn-secondary" onClick={this.toggleDel}>Delete Bucket</button>;
     const deleteConfirm = 
-                        <>
-                            Do you really want to delete this bucket? 
-                            <button className="btn btn-sm btn-danger" onClick={this.deleteBucket}>Confirm</button>
-                            <button className="btn btn-sm btn-info" onClick={this.toggleDel}>Cancel</button>
-                            </>;
+                        <div className="modal-view">
+                          <div className="modal-box text-center">
+                            <h4 className="margin-bottom">Do you really want to delete this bucket?</h4>
+                            <div>
+                            <button className="btn btn-danger" onClick={this.deleteBucket}>Yes!</button>
+                            <button className="btn btn-info" onClick={this.toggleDel}>No!</button>
+                            </div>
+                          </div>
+                        </div>;
     return (
       <div className="width-90 bg-white">
         <div className="text-right">
-            {(this.state.toggleDelete) ? deleteConfirm : deleteButton }
+            {deleteButton}
+            {(this.state.toggleDelete) ? deleteConfirm : null}
         </div>
         <div className="row">
             <div className="col-3">

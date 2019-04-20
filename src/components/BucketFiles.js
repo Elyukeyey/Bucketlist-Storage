@@ -5,8 +5,7 @@ class BucketFiles extends Component {
         super(props);
         this.state = {
             select: '',
-            toggleDelete: '',
-            postErrData: {}
+            toggleDelete: false,
         }
         // Ref for the hidden <input> - input activates when the button is pressed.
         this.upload = React.createRef(); 
@@ -35,34 +34,28 @@ class BucketFiles extends Component {
                 },
             body: formData
         })
-        .then(res => {
-            if(res.status === 201) {
-                this.props.fetchObjects(id);
-            } else {
-                console.log(res);
-            }
-        })
-        .catch(r=>r.json());
+        .then(res => (res.ok) ? this.props.fetchObjects(id) : console.log(`Error (${res.status}) uploading file, server says: ${res.statusText}`))
+        .catch(res=>res.json().then(data=>console.table(data)));
         }
     }
 
     // DELETE functions
 
-    // select file to delete
+    // Select file to delete
     selectObject = (e) => { 
         e.preventDefault();
         this.setState({ select: e.currentTarget.id });
     }
 
-    // toggles the "confirm/cancel" buttons or the "delete" button
+    // toggles the "confirm/cancel" modal window
+    // alerts the user if no file is selected
     toggleDel = () => {
-        this.setState({toggleDelete: !this.state.toggleDelete});
+        (this.state.select) ? this.setState({toggleDelete: !this.state.toggleDelete}) : alert('Select a file to delete!');
     } 
 
 
-    // DELETE request
+    // Delete single files from Bucket
     deleteObject = () => { // sends the delete request to API
-        if(this.state.select !== '') {
             fetch(`https://challenge.3fs.si/storage/buckets/${this.props.bucket.id}/objects/${this.state.select}`, {
                 method: "DELETE",
                 headers: {
@@ -70,60 +63,46 @@ class BucketFiles extends Component {
                   'Authorization': this.props.auth
                 }
             })
-            .then(res => {
-                if(res.status === 200) { // if response OK, update the state with new data
-                  this.props.fetchObjects(this.props.bucket.id)
-                } else {
-                    console.log(res);
-                }
-            })
+            .then(res => (res.ok) ? this.props.fetchObjects(this.props.bucket.id) : console.log('Error deleting file, server says: ' + res.status))
+            .catch(res=>res.json().then(data=>console.table(data)));
             this.setState({select: '', toggleDelete: false}); // reset the selection and delete button
+  }
 
-        } else {
-            alert('Select an object to delete!'); // if object is not selected alert the user
-        }
-    }
-
-    // Only to test the component props
-    /*componentDidUpdate(prevProps,prevState) {
-        if(this.props.buckets !== prevProps.buckets) {
-          console.log('BL component updated ...:');
-          console.log('this.props:');
-          console.table(this.props.buckets);
-          console.log('prevProps:')
-          console.table(prevProps.buckets);
-        }
-      }*/
   render() {
-    // Object iteration
+    // Render files
     const row = this.props.objects.map(object =>
         <div key={object.name} id={object.name} onClick={this.selectObject} className={`row li ${(this.state.select===object.name)? 'li-active' :''}`}>
         <div className="col-5">
         <i className="far fa-file-alt"></i> {object.name}
         </div>
         <div className="col-4">
-        {object.last_modified
-        }
+        {object.last_modified}
         </div>
         <div className="col-3">
           {((object.size/1024/1024) < 1) ? Math.round(object.size/1024) + 'kB' : Math.round(object.size/1024/1024) + 'MB'}
         </div>
-      </div>);
+      </div>
+        );
     // Delete buttons
     const deleteButton = <button className="btn btn-sm btn-secondary" onClick={this.toggleDel}>Delete Object</button>;
     const deleteConfirm = 
-    <>
-    Do you really want to delete this object?
-    <button className="btn btn-sm btn-danger" onClick={this.deleteObject}>Confirm</button>
-    <button className="btn btn-sm btn-info" onClick={this.toggleDel}>Cancel</button>
-    </>;
+    <div className="modal-view">
+        <div className="modal-box text-center">
+            <h4 className="margin-bottom">Do you really want to delete this file?</h4>
+                <div>
+                    <button className="btn btn-sm btn-danger" onClick={this.deleteObject}>Confirm</button>
+                    <button className="btn btn-sm btn-info" onClick={this.toggleDel}>Cancel</button>
+                </div>
+        </div>
+    </div>;
     return (
         <>
         <div className="width-90 bg-white">
             <div className="row">
                 <div className="col-3 text-left">All files ({this.props.objects.length})</div>
                 <div className="col-9 text-right">
-                {(this.state.toggleDelete) ? deleteConfirm : deleteButton }
+                {deleteButton}
+                {(this.state.toggleDelete) ? deleteConfirm : null}
                     <button className="btn btn-sm btn-success" onClick={this.browseFiles}>Upload Object</button>
                 </div>
             </div>

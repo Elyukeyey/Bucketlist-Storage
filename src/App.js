@@ -6,11 +6,9 @@ import Bucket from './components/Bucket';
 
 import './App.css';
 
-const auth =  { key: '728B3E93-86F6-42B2-9FED-83E3D786E318' }
-
 class App extends Component {
-  
-  state = {
+
+    state = {
     login: false,
     auth: 'Token',
     bucket: {
@@ -40,23 +38,40 @@ class App extends Component {
       }
     ],
     bucketlist: true,
-    selectedBucket: ''
-
   }
 
+  // Login functions
+
+  handleLogin = (val) => {
+    this.setState({
+      auth: 'Token ' + val,
+    });
+  }
+
+  toggleLogin = () => {
+    this.setState({login: true});
+  }
 
   /*  returns to the main screen
       used in Header component if the user clicks the H1 title
       used in BucketDetails component when the users deletes a bucket
   */
   goHome = () => {
-    this.setState({ bucketlist: true, bucket: '' });
+    let emptyBucket = {
+      name: '',
+      id: '',
+      location: {
+          name: '',
+          id:''
+      }
+    }
+    this.setState({ bucketlist: true, bucket: emptyBucket });
   }
 
 
 
   // toggles views between Bucket and Bucketlist components
-  toggleBucket = (id) => {
+  toggleBucket = () => {
     this.setState({bucketlist: false});
   }
 
@@ -75,11 +90,8 @@ class App extends Component {
               'Authorization': this.state.auth
           }
           })
-    .then(res => res.json())
-    .then(data=>this.setState({ bucket: data.bucket }))
-    .catch(err => {
-      console.log('fetch fail: ' + err);
-      this.setState({bucket: this.state.bucket});
+    .then(res => {
+      (res.ok) ? res.json().then(data=>this.setState({ bucket: data.bucket })) : console.log(`Error (${res.status}) on fetch Bucket, server response: ${res.statusText}`);
     });
   }
 
@@ -90,14 +102,11 @@ class App extends Component {
             method: "GET",
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': this.state.auth/*'Token 728B3E93-86F6-42B2-9FED-83E3D786E318'*/
+              'Authorization': this.state.auth
             }
     })
-    .then(res => res.json())
-    .then(data=>this.setState({buckets: data.buckets}))
-    .catch(err => {
-      console.log('fetch fail: ' + err);
-      this.setState({buckets: this.state.buckets});
+    .then(res => {
+      (res.ok) ? res.json().then(data=>this.setState({ buckets: data.buckets })) : console.log(`Error (${res.status}) on fetch BucketList, server response: ${res.statusText}`);
     });
 
   }
@@ -111,11 +120,8 @@ class App extends Component {
               'Content-Type': 'application/json',
               'Authorization': this.state.auth
     }})
-    .then(res => res.json())
-    .then(data=> this.setState({ locations: data.locations }))
-    .catch(err => {
-      console.log('fetch fail: ' + err);
-      this.setState({locations: this.state.locations});
+    .then(res =>{
+      (res.ok) ? res.json().then(data=> this.setState({ locations: data.locations })) : console.log(`Error (${res.status}) on fetch Locations, server response: ${res.statusText}`);
     });
   }
 
@@ -130,42 +136,52 @@ class App extends Component {
                       'Authorization': this.state.auth
                       }
           })
-    .then(res => res.json())
-    .then(data=>this.setState({objects: data.objects}))
-    .catch(err => {
-      console.log('fetch fail: ' + err);
-      this.setState({objects: this.state.objects});
-    });
+    .then(res => {
+      (res.ok) ? res.json().then(data=>this.setState({ objects: data.objects })) : console.log(`Error (${res.status}) on fetch Objects, server response: ${res.statusText}`);
+    });    
   }
 
- // Login !!
+ // Mounting and Updating:
 
-  /*componentDidUpdate(prevState,prevProps) {
+ /*
+        I used getSnapshotBeforeUpdate because the prevState in componentDidUpdate returned and empty object ({ })
+        which set off an infinite loop of state updates.
 
+ */
+  getSnapshotBeforeUpdate(prevProps,prevState) { // prevState returns correctly
+      if(prevState !== null) {
+        return prevState.auth;
+      }
+      return null;
+  }
 
-    if(prevState.login !== this.state.login) {
+  componentDidUpdate(prevState,prevProps,snapshot) { // prevState returns an empty object, that's why snapshot is used
+    if (snapshot !== null && snapshot !== this.state.auth) {
+
       this.fetchBucketList();
       this.fetchLocations();
+      this.toggleLogin();
     }
-  }*/
-
-//
-  componentDidMount() {
-    // temporary
-    this.setState({ auth: auth.key });
-    // temporary
   }
-  // Fetch data for BucketList (main view) and BucketCreate (locations for the form) components
- /* componentDidMount() {
-    this.fetchBucketList();
-    this.fetchLocations();
-  }*/
+
+  // Check if user already logged in
+  componentDidMount() {
+    let ls = localStorage.getItem('userKey');
+    if (ls !== null) {
+      this.setState({ auth: ls});
+      } 
+  }
+
+
 
   render() {
     return (
       <>
         <Header goHome={this.goHome}/>
-        {!this.state.login && <Secrets />}
+        {!this.state.login && <Secrets
+                                    handleLogin={this.handleLogin}
+                                    fetchBucketList={this.fetchBucketList}
+                                    fetchLocations={this.fetchLocations}/>}
         <div className="width-90"><h2>{(!this.state.bucket) ? 'Bucket list' : this.state.bucket.name }</h2></div>
         {(this.state.login && this.state.bucketlist) && <Bucketlist 
                                     buckets={this.state.buckets}

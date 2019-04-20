@@ -13,7 +13,6 @@ class BucketCreate extends Component {
 
     // Form functions
 
-
     // Set the value from the name <input>
     handleNameChange = (e) => {
         const newState = {
@@ -50,22 +49,17 @@ class BucketCreate extends Component {
                     },
                 body: JSON.stringify({
                     name: name,
-                    location: (location === '') ? '541909F3-20FC-4382-A8E8-18042F5E7677' : location
+                    location: location
+                    //location: (location === '') ? '541909F3-20FC-4382-A8E8-18042F5E7677' : location // fallback if the data isn't fetched correctly
                 })})
-            .then(res => {
-                if(res.status === 201) {
-                    this.props.fetchBucketList();
-                } else {
-                    console.log(res.status);
-                    let data = res.json();
-                    console.log(data);
-                }
-            })
+            .then(res =>
+                (res.ok) ? this.props.fetchBucketList() : console.log(`Error (${res.status}) creating a bucket, server says: ${res.statusText}`)
+                );
             this.props.toggleCreate();
         }    
     }
   render() {
-    const form = <form onSubmit={this.addBucket}> {/* Add bucket <form> */}
+    const form = <form onSubmit={this.addBucket}>
                     <div className="row">
                         <div className="col-6">
                         <label>Bucket Name*</label><br />

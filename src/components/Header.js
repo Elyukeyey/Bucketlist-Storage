@@ -1,6 +1,6 @@
 import React from 'react'
 
-function Header(props) {
+const Header = (props) => {
   return (
     <header className="app-header">
         <div className="width-90">
