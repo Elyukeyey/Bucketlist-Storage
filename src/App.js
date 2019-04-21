@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Header from './components/Header';
 import Secrets from './components/Secrets';
+import ErrorMessage from './components/ErrorMessage';
 import Bucketlist from './components/Bucketlist';
 import Bucket from './components/Bucket';
 
@@ -38,6 +39,12 @@ class App extends Component {
       }
     ],
     bucketlist: true,
+    errMsg: {
+      status: 0,
+      message: '',
+      component: ''
+    },
+    errToggle: false
   }
 
   // Login functions
@@ -70,15 +77,15 @@ class App extends Component {
 
 
 
-  // toggles views between Bucket and Bucketlist components
+// toggles views between Bucket and Bucketlist components
+
+
   toggleBucket = () => {
     this.setState({bucketlist: false});
   }
 
 
-
-
-  // GET REQUESTS:
+  // FETCH GET REQUESTS:
 
   // single bucket
   fetchBucket = (id) => {
@@ -91,7 +98,11 @@ class App extends Component {
           }
           })
     .then(res => {
-      (res.ok) ? res.json().then(data=>this.setState({ bucket: data.bucket })) : console.log(`Error (${res.status}) on fetch Bucket, server response: ${res.statusText}`);
+      if (res.ok) { res.json().then(data=>this.setState({ bucket: data.bucket })) } else {
+        this.setErrorMsg(res.status,res.statusText,'App.js:102');
+        console.log(`Error (${res.status}) on fetch Bucket, server response: ${res.statusText}`);
+        this.toggleError();
+      }
     });
   }
 
@@ -106,7 +117,11 @@ class App extends Component {
             }
     })
     .then(res => {
-      (res.ok) ? res.json().then(data=>this.setState({ buckets: data.buckets })) : console.log(`Error (${res.status}) on fetch BucketList, server response: ${res.statusText}`);
+      if (res.ok) {res.json().then(data=>this.setState({ buckets: data.buckets })) } else {
+        this.setErrorMsg(res.status,res.statusText,'App.js:121');
+        console.log(`Error (${res.status}) on fetch BucketList, server response: ${res.statusText}`);
+        this.toggleError();
+      }
     });
 
   }
@@ -121,7 +136,11 @@ class App extends Component {
               'Authorization': this.state.auth
     }})
     .then(res =>{
-      (res.ok) ? res.json().then(data=> this.setState({ locations: data.locations })) : console.log(`Error (${res.status}) on fetch Locations, server response: ${res.statusText}`);
+      if (res.ok) {res.json().then(data=> this.setState({ locations: data.locations }))} else {
+        console.log(`Error (${res.status}) on fetch Locations, server response: ${res.statusText}`);
+        this.setErrorMsg(res.status,res.statusText,'App.js:141');
+        this.toggleError();
+      }
     });
   }
 
@@ -137,11 +156,42 @@ class App extends Component {
                       }
           })
     .then(res => {
-      (res.ok) ? res.json().then(data=>this.setState({ objects: data.objects })) : console.log(`Error (${res.status}) on fetch Objects, server response: ${res.statusText}`);
+      if (res.ok) { res.json().then(data=>this.setState({ objects: data.objects })) } else {
+        this.setErrorMsg(res.status,res.statusText,'App.js:160');
+        console.log(`Error (${res.status}) on fetch Objects, server response: ${res.statusText}`);
+        this.toggleError();
+      }
     });    
   }
 
- // Mounting and Updating:
+
+// ERROR HANDLING
+
+/*
+I encountered frequent (500) Internal server error messages and decided to implement the error message for the user.
+The errors are also console logged.
+
+*/
+
+// Open notification on fetch error
+toggleError = () => {
+  this.setState({errToggle: !this.state.errToggle})
+}
+
+// Clear the Error message
+clearErrorMsg = () => {
+  let err = { status: 0, message: '', component: ''} 
+  this.setState({ errMsg: err });
+}
+
+// Set the error message when the modal window opens
+setErrorMsg = (status,text,comp) => {
+  let err = { status: status, message: text, component: comp }
+  this.setState({ errMsg: err });
+}
+
+
+ // MOUNTING AND UPDATING:
 
  /*
         I used getSnapshotBeforeUpdate because the prevState in componentDidUpdate returned and empty object ({ })
@@ -184,21 +234,36 @@ class App extends Component {
                                     fetchLocations={this.fetchLocations}/>}
         <div className="width-90"><h2>{(!this.state.bucket) ? 'Bucket list' : this.state.bucket.name }</h2></div>
         {(this.state.login && this.state.bucketlist) && <Bucketlist 
+                                    /*States*/
                                     buckets={this.state.buckets}
                                     locations={this.state.locations}
                                     auth={this.state.auth}
+                                    /*Functions*/
                                     toggleBucket={this.toggleBucket}
                                     fetchBucketList={this.fetchBucketList}
                                     fetchObjects={this.fetchObjects}
                                     fetchBucket={this.fetchBucket}
+                                    /*Errors*/
+                                    toggleError={this.toggleError}
+                                    setErrorMsg={this.setErrorMsg}
                                     />}
-        {(this.state.login && !this.state.bucketlist) && <Bucket 
+        {(this.state.login && !this.state.bucketlist) && <Bucket
+                                    /*States*/
                                     bucket={this.state.bucket}
                                     objects={this.state.objects}
                                     auth={this.state.auth}
+                                    /*Functions*/
                                     goHome={this.goHome}
                                     fetchObjects={this.fetchObjects}
                                     fetchBucketList={this.fetchBucketList}
+                                    /*Errors*/
+                                    toggleError={this.toggleError}
+                                    setErrorMsg={this.setErrorMsg}
+                                    />}
+        {(this.state.errToggle) && <ErrorMessage
+                                    toggleError={this.toggleError}
+                                    clearErrorMsg={this.clearErrorMsg}
+                                    errMsg={this.state.errMsg}
                                     />}
       </>
     );

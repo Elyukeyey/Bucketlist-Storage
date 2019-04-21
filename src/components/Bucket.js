@@ -26,17 +26,29 @@ class Bucket extends Component {
                 </div>
             </div>
             { this.state.toggleTab === 'files' && <BucketFiles 
+                                                        /*States */
                                                         bucket={this.props.bucket}
                                                         objects={this.props.objects}
                                                         auth={this.props.auth}
+                                                        /*Functions */
                                                         fetchObjects={this.props.fetchObjects}
-                                                        goHome={this.props.goHome}/>}
+                                                        goHome={this.props.goHome}
+                                                        /* Error Functions */
+                                                        toggleError={this.props.toggleError}
+                                                        setErrorMsg={this.props.setErrorMsg}
+                                                        />}
             { this.state.toggleTab === 'details' && <BucketDetails
+                                                        /* States */
                                                         bucket={this.props.bucket}
                                                         objects={this.props.objects}
                                                         auth={this.props.auth}
+                                                        /* Functions */
                                                         goHome={this.props.goHome}
-                                                        fetchBucketList={this.props.fetchBucketList}/>}
+                                                        fetchBucketList={this.props.fetchBucketList}
+                                                        /* Error Functions */
+                                                        toggleError={this.props.toggleError}
+                                                        setErrorMsg={this.props.setErrorMsg}
+                                                        />}
             </>
         
         )

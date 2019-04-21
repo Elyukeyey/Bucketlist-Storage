@@ -28,11 +28,14 @@ class BucketDetails extends Component {
                   'Authorization': this.props.auth
                 }
             })
-            .then((res) =>
-              (res.ok) ? this.props.fetchBucketList() : console.log(`Error (${res.status}) deleting Bucket, server says: ${res.statusText}`)
-            )
-            .then(this.props.goHome())
-            .catch(res=>res.json().then(data=>console.table(data)));
+            .then((res) => {
+              if(res.ok) { this.props.fetchBucketList(); } else {
+                this.props.setErrorMsg(res.status,res.statusText,'BucketDetails.js:33');
+                console.log(`Error (${res.status}) deleting file, server says: ${res.statusText}`);
+                this.props.toggleError();
+              }
+            })
+            .then(this.props.goHome());
             this.setState({toggleDelete: false}); // reset the delete modal window
             
   }
@@ -54,7 +57,9 @@ class BucketDetails extends Component {
 
   render() {
     const { name, location } = this.props.bucket;
+    // get total size of bucket
     let sum = this.getSize();
+    // delete buttons
     const deleteButton = <button className="btn btn-sm btn-secondary" onClick={this.toggleDel}>Delete Bucket</button>;
     const deleteConfirm = 
                         <div className="modal-view">

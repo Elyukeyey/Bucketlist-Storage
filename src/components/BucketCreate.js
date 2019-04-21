@@ -50,11 +50,14 @@ class BucketCreate extends Component {
                 body: JSON.stringify({
                     name: name,
                     location: location
-                    //location: (location === '') ? '541909F3-20FC-4382-A8E8-18042F5E7677' : location // fallback if the data isn't fetched correctly
                 })})
-            .then(res =>
-                (res.ok) ? this.props.fetchBucketList() : console.log(`Error (${res.status}) creating a bucket, server says: ${res.statusText}`)
-                );
+            .then(res =>{
+                    if (res.ok) { this.props.fetchBucketList(); } else {
+                        this.props.setErrorMsg(res.status,res.statusText,'BucketCreate.js:56');
+                        console.log(`Error (${res.status}) creating a bucket, server says: ${res.statusText}`);
+                        this.props.toggleError();
+                    }
+                });
             this.props.toggleCreate();
         }    
     }

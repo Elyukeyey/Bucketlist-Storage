@@ -34,8 +34,13 @@ class BucketFiles extends Component {
                 },
             body: formData
         })
-        .then(res => (res.ok) ? this.props.fetchObjects(id) : console.log(`Error (${res.status}) uploading file, server says: ${res.statusText}`))
-        .catch(res=>res.json().then(data=>console.table(data)));
+        .then(res => {
+            if (res.ok) { this.props.fetchObjects(id); } else {
+                this.props.setErrorMsg(res.status,res.statusText,'BucketFiles.js:39');
+                console.log(`Error (${res.status}) uploading file, server says: ${res.statusText}`); 
+                this.props.toggleError();
+            }
+        });
         }
     }
 
@@ -63,8 +68,14 @@ class BucketFiles extends Component {
                   'Authorization': this.props.auth
                 }
             })
-            .then(res => (res.ok) ? this.props.fetchObjects(this.props.bucket.id) : console.log('Error deleting file, server says: ' + res.status))
-            .catch(res=>res.json().then(data=>console.table(data)));
+            .then(res => {
+                if (res.ok) { this.props.fetchObjects(this.props.bucket.id) } else { 
+                    this.props.setErrorMsg(res.status,res.statusText,'BucketFiles.js:73');
+                    console.log(`Error (${res.status}) deleting file, server says: ${res.statusText}`);
+                    this.props.toggleError();
+                }
+            });
+            //.catch(res=>res.json().then(data=>console.table(data)));
             this.setState({select: '', toggleDelete: false}); // reset the selection and delete button
   }
 

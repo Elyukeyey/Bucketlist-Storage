@@ -10,19 +10,26 @@ class Secrets extends Component {
             access: false
         };
     }
+
+    
+    // Set input Bucket name value
     handleChange = (e) => { // e.target == undefined, had to use currentTarget
         const name = e.currentTarget.name;
         this.setState({ [name]: e.currentTarget.value});
     }
+
+    // Toggle remember me / stay signed in
     handleClick = () => {
         this.setState({ remember: !this.state.remember });
     }
 
+
+    // On submit: test key, if ok continue to BucketList, else notify use about fail
     handleSubmit = (e) => {
         e.preventDefault();
         console.log('submitted ...');
 
-        if(this.state.token === '') { alert('Please enter your key'); } else {
+        if(this.state.token === '') { alert('Please enter your key'); } else { // check if token is entered
             fetch('https://challenge.3fs.si/storage/locations',
             {
               method: "GET",
@@ -31,7 +38,7 @@ class Secrets extends Component {
                 'Authorization': 'Token ' + this.state.token
             }}).then(res=> {
                 if(res.ok) {
-                    if (this.state.remember) { localStorage.setItem('userKey','Token ' + this.state.token); }
+                    if (this.state.remember) { localStorage.setItem('userKey','Token ' + this.state.token); } // if remember me checked write to local storage
                     this.props.handleLogin(this.state.token);
                 } else if(res.status === 401) {
                     res.json().then(data=>this.setState({response: data.message + ' Please enter a valid key!'}));
@@ -40,11 +47,6 @@ class Secrets extends Component {
                 }
             })
         }
-        // On Submit send a request to server
-        // wait for answer from server
-        // if answer ok -> continue + close form
-        // if Remember me, add to local storage
-        // else -> stay here and ask for key again
     }
   render() {
     return (
@@ -52,7 +54,7 @@ class Secrets extends Component {
         <div className="text-center text-lg text-danger font-weight-bold">{this.state.response}</div>
         <form className="text-center" onSubmit={this.handleSubmit}>
             <label>Your key:</label>
-            <p className="small">e.g.: 728BXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX</p>
+            <p className="small">e.g.: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX</p>
             <input type="text" placeholder={this.state.token} name="token" onChange={this.handleChange} className="login-input"/>
             <label>Remember me?</label>
             <input type="checkbox" className="login-checkbox" name="remember" onChange={this.handleClick}/>

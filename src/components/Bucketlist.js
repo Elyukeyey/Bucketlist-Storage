@@ -16,25 +16,12 @@ class Bucketlist extends Component {
     this.setState({ toggle: !this.state.toggle });
   }
 
-  // Selects and opens the bucket from the list 
+  // Select and open the bucket from the list 
   selectBucket = (e) => {
     this.props.fetchBucket(e.currentTarget.id);
     this.props.fetchObjects(e.currentTarget.id);
     this.props.toggleBucket();
   }
-
-
-  // Only for testing state changes:
-
-  /*componentDidUpdate(prevProps,prevState) {
-    if(this.props.buckets !== prevProps.buckets) {
-      console.log('BL component updated ...:');
-      console.log('this.props:');
-      console.table(this.props.buckets);
-      console.log('prevProps:')
-      console.table(prevProps.buckets);
-    }
-  }*/
 
   render() {
     const row = this.props.buckets.map(bucket => 
@@ -50,11 +37,17 @@ class Bucketlist extends Component {
 
       <>
         <BucketCreate
+            /*States*/
             toggle={this.state.toggle}
             auth={this.props.auth}
+            locations={this.props.locations}
+            /*Functions */
             toggleCreate={this.toggleCreate}
             fetchBucketList={this.props.fetchBucketList}
-            locations={this.props.locations}/>
+            /*Error functions */
+            toggleError={this.props.toggleError}
+            setErrorMsg={this.props.setErrorMsg}
+            />
         <div className="width-90 bg-white">
           <div className="col-3 text-left">All Buckets ({this.props.buckets.length})</div>
           <div className="row row-header">
